@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <title>Rubal Believe Meter</title>
 
@@ -141,7 +142,27 @@ Only Rubal can change this belief meter ✨
 
 </div>
 
-<script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* Replace with your Firebase config */
+const firebaseConfig = {
+  apiKey: "AIzaSyDw20zRd5vi7Wc9Ljyy5mAc58sN5UvgMng",
+  authDomain: "rjbm-b7a00.firebaseapp.com",
+  databaseURL: "https://rjbm-b7a00-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "rjbm-b7a00",
+  storageBucket: "rjbm-b7a00.firebasestorage.app",
+  messagingSenderId: "616682413284",
+  appId: "1:616682413284:web:104405ed9ffb96155960f1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const beliefRef = ref(db,"beliefMeter");
+
 
 let fill = document.getElementById("fill")
 let percent = document.getElementById("percent")
@@ -150,17 +171,11 @@ let message = document.getElementById("message")
 let login = document.getElementById("login")
 let control = document.getElementById("control")
 
-let belief = localStorage.getItem("belief") || 50
-
-updateMeter(belief)
-slider.value = belief
 
 function updateMeter(value){
 
 fill.style.width = value + "%"
 percent.innerHTML = value + "%"
-
-localStorage.setItem("belief",value)
 
 if(value < 30){
 message.innerHTML = "Trust needs time 💭"
@@ -177,9 +192,27 @@ message.innerHTML = "Maximum belief 🔥"
 
 }
 
-slider.oninput = function(){
-updateMeter(this.value)
+
+onValue(beliefRef,(snapshot)=>{
+
+let value = snapshot.val()
+
+if(value === null){
+value = 50
 }
+
+updateMeter(value)
+slider.value = value
+
+})
+
+
+slider.oninput = function(){
+
+set(beliefRef,Number(this.value))
+
+}
+
 
 login.onclick = function(){
 
